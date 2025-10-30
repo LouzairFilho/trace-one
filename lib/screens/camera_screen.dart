@@ -8,7 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:image/image.dart' as img;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 
 import '../services/location_service.dart';
 import '../services/image_service.dart';
@@ -83,7 +83,7 @@ class _CameraScreenState extends State<CameraScreen> {
       await imageFile.writeAsBytes(watermarkedBytes, flush: true);
       await _imageService.saveImageWithExif(imageFile, position);
 
-      final result = await ImageGallerySaver.saveFile(imageFile.path);
+      final result = await ImageGallerySaverPlus.saveFile(imageFile.path);
 
       if (result['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,68 +1,44 @@
-# Blueprint do Projeto: Câmera com Carimbo d'água
+# Visão Geral do Projeto: Câmera com Carimbo d'água
 
-## Visão Geral
+Este aplicativo Flutter foi projetado para capturar fotos, aplicar um carimbo d'água abrangente com informações de data, hora, geolocalização e identificação do usuário, e, em seguida, salvar a imagem na galeria do dispositivo e permitir o compartilhamento.
 
-Este documento descreve a arquitetura, funcionalidades e design do aplicativo "Câmera com Carimbo d'água". O objetivo do aplicativo é permitir que os usuários tirem fotos, adicionem uma marca d'água contendo informações de geolocalização e data/hora e salvem ou compartilhem a imagem resultante.
+## Funcionalidades Implementadas
 
-## Funcionalidades
+- **Tela Inicial (`HomePage`)**
+  - Apresenta um título claro e um botão de ação proeminente (`ElevatedButton`) para iniciar a câmera.
+  - Interface limpa e direta para o usuário.
 
-- **Captura de Fotos:** Utiliza o plugin `camera` para acessar a câmera do dispositivo e capturar imagens.
-- **Geolocalização:** Utiliza o plugin `geolocator` para obter a latitude e longitude do dispositivo.
-- **Geocodificação Reversa:** Utiliza o plugin `geocoding` para converter as coordenadas de GPS em um endereço legível.
-- **Marca d'água:** Utiliza o pacote `image` para adicionar uma sobreposição de texto à imagem com as seguintes informações:
-    - Data e hora da captura
-    - Latitude e Longitude
-    - Precisão da localização
-    - Endereço
-    - Um campo de identificação preenchido pelo usuário
-- **Salvando Imagens:**
-    - Salva a imagem com marca d'água na galeria do dispositivo usando `image_gallery_saver`.
-    - Grava os dados de geolocalização (GPS) nos metadados EXIF da imagem usando `native_exif`.
-- **Compartilhamento:** Utiliza o plugin `share_plus` para permitir que o usuário compartilhe a imagem com marca d'água.
-- **Interface do Usuário:**
-    - Exibição da visualização da câmera.
-    - Botão para capturar a foto.
-    - Campo de texto para o usuário inserir uma identificação.
-    - Botão para alternar entre a câmera frontal e traseira.
+- **Tela da Câmera (`CameraScreen`)**
+  - **Visualização da Câmera:** Exibe a visualização ao vivo da câmera do dispositivo.
+  - **Captura de Foto:** Um `FloatingActionButton` com um ícone de câmera permite ao usuário tirar uma foto.
+  - **Carimbo d'água (Watermark):**
+    - **Geolocalização:** Solicita permissão e obtém as coordenadas (latitude e longitude) e a precisão do GPS usando o pacote `geolocator`.
+    - **Endereço (Geocodificação Reversa):** Converte as coordenadas GPS em um endereço legível usando o pacote `geocoding`.
+    - **Data e Hora:** Captura o momento exato em que a foto foi tirada.
+    - **Identificação do Usuário:** Um campo de texto (`TextField`) permite que o usuário insira uma identificação personalizada a ser incluída no carimbo d'água.
+    - **Aplicação do Carimbo:** As informações coletadas são desenhadas diretamente na imagem usando o pacote `image`.
+  - **Metadados EXIF:** As coordenadas GPS são incorporadas nos metadados EXIF da imagem JPEG usando o pacote `flutter_exif_plugin`.
+  - **Salvar na Galeria:** Após a aplicação do carimbo d'água, a imagem final é salva na galeria de fotos do dispositivo usando o pacote `image_gallery_saver_plus`.
+  - **Compartilhamento:** Um diálogo de compartilhamento nativo é aberto, permitindo ao usuário enviar a foto para outros aplicativos usando o pacote `share_plus`.
+  - **Troca de Câmera:** Um botão permite ao usuário alternar entre a câmera frontal e a traseira.
 
-## Estrutura do Projeto
+## Design e Estilo
 
-O projeto está organizado da seguinte forma:
+- **Tema:** Utiliza o `ThemeData` do Material Design com o `useMaterial3: true` para um visual moderno.
+- **Cores:** Esquema de cores padrão do Flutter, centrado em `Colors.deepPurple`.
+- **Layout:** Estrutura de layout padrão do Flutter usando `Scaffold`, `AppBar`, `Column`, `Center`, e `FloatingActionButton`.
+- **Feedback ao Usuário:** Utiliza `SnackBar` para notificar o usuário quando a imagem é salva com sucesso.
+- **Carregamento:** Exibe um `CircularProgressIndicator` enquanto a câmera está inicializando.
 
-```
-lib/
-├── main.dart             # Ponto de entrada da aplicação
-├── screens/
-│   └── camera_screen.dart  # Tela principal da câmera
-└── services/
-    ├── image_service.dart    # Lógica de manipulação de imagem (marca d'água, EXIF)
-    └── location_service.dart # Lógica de geolocalização
-```
+## Dependências do Projeto (`pubspec.yaml`)
 
-## Plano de Implementação Atual
-
-Nesta fase, as seguintes tarefas foram concluídas:
-
-1.  **Configuração Inicial:**
-    - Adicionadas as dependências `camera`, `geolocator`, `geocoding`, `image`, `path_provider`, `share_plus`, `image_gallery_saver` e `native_exif`.
-    - Configuradas as permissões de câmera e localização para Android e iOS.
-
-2.  **Desenvolvimento da Interface:**
-    - Criada a tela da câmera com a visualização da câmera, botão de captura e campo de identificação.
-
-3.  **Implementação da Lógica:**
-    - Implementada a captura de fotos.
-    - Implementada a obtenção da localização e a geocodificação reversa.
-    - Implementada a adição da marca d'água na imagem.
-    - Implementado o salvamento da imagem na galeria.
-    - Implementada a escrita dos dados de GPS nos metadados EXIF.
-    - Implementado o compartilhamento da imagem.
-
-4.  **Refatoração:**
-    - O código foi refatorado em serviços separados para `ImageService` e `LocationService` para melhor organização e reutilização.
-
-## Próximos Passos
-
-- Testes mais robustos em diferentes dispositivos e cenários.
-- Melhorias na interface do usuário, como feedback visual durante o processamento da imagem.
-- Adicionar a capacidade de personalizar a aparência da marca d'água.
+- `flutter`
+- `camera`: Para acesso e controle da câmera.
+- `geolocator`: Para obter a localização GPS.
+- `geocoding`: Para converter coordenadas em endereço.
+- `path_provider`: Para encontrar caminhos de armazenamento no dispositivo.
+- `share_plus`: Para compartilhar arquivos.
+- `image`: Para manipulação de imagens (decodificação, carimbo d'água, codificação).
+- `image_gallery_saver_plus`: Para salvar a imagem na galeria (substituiu o `image_gallery_saver` obsoleto).
+- `flutter_exif_plugin`: Para escrever metadados EXIF.
+- `permission_handler`: Para gerenciar permissões de câmera e localização de forma robusta.
