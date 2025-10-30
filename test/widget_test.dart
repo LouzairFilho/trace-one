@@ -1,30 +1,59 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:myapp/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Camera screen smoke test', (WidgetTester tester) async {
+    // Configura o mock do canal da câmera ANTES de construir o widget.
+    const MethodChannel channel =
+        MethodChannel('plugins.flutter.io/camera');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'initialize') {
+        // Retorna uma resposta de sucesso para a inicialização.
+        return {};
+      } else if (methodCall.method == 'availableCameras') {
+        // Retorna uma lista de câmeras falsas.
+        return [
+          {
+            'name': 'fake_camera',
+            'lensFacing': 'back',
+            'sensorOrientation': 90,
+          }
+        ];
+      }
+      // Retorna nulo para outras chamadas de método que não nos interessam.
+      return null;
+    });
+    
+    // Fornece uma CameraDescription falsa para o teste.
+    final fakeCamera = CameraDescription(
+      name: 'fake_camera',
+      lensDirection: CameraLensDirection.back,
+      sensorOrientation: 90,
+    );
+
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(camera: fakeCamera));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Aguarda a UI renderizar após a "inicialização" da câmera.
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verifica se o título do AppBar está correto.
+    expect(find.text("Câmera com Carimbo d'água"), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verifica se o botão de tirar foto (FloatingActionButton) está presente.
+    expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+
+    // Verifica se o campo de texto de identificação está presente pelo seu labelText.
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField && widget.decoration?.labelText == 'Identificação',
+      ),
+      findsOneWidget,
+    );
   });
 }
